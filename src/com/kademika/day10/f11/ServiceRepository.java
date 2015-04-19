@@ -16,8 +16,8 @@ public class ServiceRepository<T extends Service> {
         serviceList = new ArrayList<T>();
     }
 
-    public T getObject(T object) {
-        return null;
+    public T getObject() {
+        return serviceList.get(0);
     }
 
     public void addObject(T object) {
