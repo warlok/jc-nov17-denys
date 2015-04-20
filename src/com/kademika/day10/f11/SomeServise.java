@@ -8,14 +8,7 @@ import java.net.URL;
 /**
  * Created by dean on 4/19/15.
  */
-public class SomeServise extends Service {
+public class SomeServise extends com.kademika.day10.f11.Service {
 
 
-    public SomeServise(String wsdlDocumentLocation, QName serviceName) {
-        super(wsdlDocumentLocation, serviceName);
-    }
-
-    protected SomeServise(URL wsdlDocumentLocation, QName serviceName, WebServiceFeature... features) {
-        super(wsdlDocumentLocation, serviceName, features);
-    }
 }

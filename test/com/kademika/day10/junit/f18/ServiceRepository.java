@@ -23,8 +23,8 @@ public class ServiceRepository {
     @Before
     public void init() {
         repo = new com.kademika.day10.f11.ServiceRepository();
-        service1 = new SomeServise("http://ssskd", QName.valueOf("test1"));
-        service1 = new SomeServise("http://ssskd", QName.valueOf("test2"));;
+        service1 = new SomeServise();
+        service1 = new SomeServise();;
     }
 
     @Test
