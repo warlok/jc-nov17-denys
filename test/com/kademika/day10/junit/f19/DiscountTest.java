@@ -1,6 +1,10 @@
 package com.kademika.day10.junit.f19;
 
-import frame16.*;
+import com.kademika.day10.f19.Animal;
+import com.kademika.day10.f19.Customer;
+import com.kademika.day10.f19.Market;
+import com.kademika.day10.f19.Type;
+import com.kademika.day10.f19.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
