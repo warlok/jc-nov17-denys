@@ -2,7 +2,7 @@ package com.kademika.day10.f19;
 
 public class Animal implements Comparable<Animal>{
 
-	private String name;
+	public String name;
 	private double price;
     private int amount;
 	private Type type; // Class: Aka Amphibian, Mammal
