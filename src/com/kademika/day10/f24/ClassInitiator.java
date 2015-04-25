@@ -13,37 +13,33 @@ import java.util.Set;
  */
 public class ClassInitiator <T> {
 
+    private Constructor constr;
+
     public T initClass(Class c, List<Object> list) {
-        Constructor[] constructors = c.getDeclaredConstructors();
+
         T someObject = null;
 
-        String listParameters = "";
-        String construktorParameters = "";
+        Object[] arguments = list.toArray(new Object[list.size()]);
+        Class[] args = new Class[list.size()];
 
-        for (Object o : list) {
-            listParameters += o.getClass().getSimpleName() + " ";
+        for (int i=0; i < args.length; i++ ) {
+            args[i] = list.get(i).getClass();
         }
 
-        for (Constructor constr : constructors) {
+        try {
+            constr = c.getDeclaredConstructor(args);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
 
-            for (Class clas : constr.getParameterTypes()) {
-                construktorParameters += clas.getSimpleName() + " ";
-            }
-
-            if (construktorParameters.equals(listParameters)) {
-
-                try {
-                    someObject = (T) constr.newInstance();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
+        try {
+            someObject = (T) constr.newInstance(arguments);
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
         }
 
         return someObject;
