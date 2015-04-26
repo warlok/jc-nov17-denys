@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by dean on 3/23/15.
  */
-public class ServiceRepository<T extends com.kademika.day10.f11.Service> {
+public class ServiceRepository<T extends Service> {
 
     private T type;
     private List<T> serviceList;
