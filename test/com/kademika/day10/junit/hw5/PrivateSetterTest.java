@@ -18,10 +18,12 @@ import java.util.Map;
 public class PrivateSetterTest {
 
     PrivateSetter<TestObject> setter;
-    Map fieldsAndValues = new HashMap();
+    Map fieldsAndValues;
 
     @Before
     public void init() {
+        setter = new PrivateSetter<>();
+        fieldsAndValues = new HashMap();
         fieldsAndValues.put("name","Egor");
         fieldsAndValues.put("age",30);
         fieldsAndValues.put("secondName", "Portnov");
