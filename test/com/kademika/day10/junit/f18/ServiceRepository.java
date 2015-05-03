@@ -34,15 +34,15 @@ public class ServiceRepository {
 
     @Test
     public void testAddObject() {
-       repo.addObject(service1);
+//       repo.addObject(service1);
         assertNotNull(repo.getObject());
     }
 
     @Test
     public void testRemoveObject() {
-        repo.addObject(service1);
+//        repo.addObject(service1);
         assertNotNull(repo.getObject());
-        repo.removeObject(service1);
+//        repo.removeObject(service1);
         assertNull(repo.getObject());
     }
 
