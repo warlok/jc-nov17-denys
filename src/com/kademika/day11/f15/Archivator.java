@@ -9,14 +9,19 @@ public class Archivator {
 
     public static void main(String[] args) {
 
+        if (args.length != 2) {
+            System.err.print("Usage: archivator command (zip|unzip) file");
+            System.exit(-1);
+        }
+
         File dir = new File(args[1]);
 
         switch(args[0]) {
             case "zip":
-                sdcs;
+                Zip zip = new Zip();
+                zip.compress(dir);
                 break;
             case "unzip":
-                sdfds;
                 break;
             default:
                 System.out.println("You must choose action \"zip\" or \"unzip\"");
