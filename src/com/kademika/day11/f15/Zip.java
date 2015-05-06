@@ -17,32 +17,9 @@ public class Zip {
         ) {
 
             if (targetFile.isDirectory()) {
-
-                File[] files = targetFile.listFiles();
-                for (File file : files) {
-                    BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
-                    int i;
-                    ZipEntry entry = new ZipEntry(file.getName());
-                    zos.setMethod(ZipOutputStream.DEFLATED);
-                    zos.putNextEntry(entry);
-                    while ((i = bis.read()) != -1) {
-                        zos.write((byte) i);
-                    }
-                    zos.closeEntry();
-                    bis.close();
-                }
+                addDirectoryToArchive(targetFile, zos);
             } else {
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(targetFile));
-                ZipEntry entry = new ZipEntry(targetFile.getName());
-                int i;
-                zos.setMethod(ZipOutputStream.DEFLATED);
-                zos.putNextEntry(entry);
-
-                while ((i = bis.read()) != -1) {
-                    zos.write((byte) i);
-                }
-                zos.closeEntry();
-                bis.close();
+                addFileToArchive(targetFile, zos);
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -50,6 +27,31 @@ public class Zip {
             e.printStackTrace();
         }
 
+    }
+
+    private void addDirectoryToArchive(File targetFile, ZipOutputStream zos) throws IOException {
+        File[] files = targetFile.listFiles();
+        for (File file : files) {
+            if (file.isDirectory()) {
+                addDirectoryToArchive(file,zos);
+            } else {
+                addFileToArchive(file, zos);
+            }
+        }
+    }
+
+    private void addFileToArchive(File targetFile, ZipOutputStream zos) throws IOException {
+        BufferedInputStream bis = new BufferedInputStream(new FileInputStream(targetFile));
+        ZipEntry entry = new ZipEntry(targetFile.getPath());
+        int i;
+        zos.setMethod(ZipOutputStream.DEFLATED);
+        zos.putNextEntry(entry);
+
+        while ((i = bis.read()) != -1) {
+            zos.write((byte) i);
+        }
+        zos.closeEntry();
+        bis.close();
     }
 
 

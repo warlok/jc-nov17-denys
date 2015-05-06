@@ -15,6 +15,10 @@ public class Archivator {
         }
 
         File dir = new File(args[1]);
+        if (!dir.exists()) {
+            System.err.println("Invalid path or file (directory) \"" + dir.getName() + "\" does not exist");
+            System.exit(-2);
+        }
 
         switch(args[0]) {
             case "zip":
@@ -22,6 +26,8 @@ public class Archivator {
                 zip.compress(dir);
                 break;
             case "unzip":
+                Unzip unzip = new Unzip();
+                unzip.decompress(dir);
                 break;
             default:
                 System.out.println("You must choose action \"zip\" or \"unzip\"");
