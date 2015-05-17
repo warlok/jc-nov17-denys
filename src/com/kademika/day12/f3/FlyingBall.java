@@ -23,19 +23,23 @@ public class FlyingBall extends JPanel {
     private Ball ball0;
 
     public static void main(String[] args) {
-
+        FlyingBall flball = new FlyingBall();
+//        ballFly(flball);
+        while (true) {
+            flball.myRepaint(flball);
+        }
 
     }
 
-    private static void ballFly(final FlyingBall ball) {
-        final FlyingBall flyBall = new FlyingBall();
-//        new Thread() {
-//            @Override
-//            public void run() {
-//                flyBall.myRepaint(flyBall);
-//            }
-//        }.start();
-        flyBall.myRepaint(flyBall);
+    private static void ballFly(final FlyingBall flyBall) {
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    flyBall.myRepaint(flyBall);
+                }
+            }
+        }.start();
     }
 
     public FlyingBall() {
@@ -51,8 +55,8 @@ public class FlyingBall extends JPanel {
         ball0 = new Ball(175, 7, new Color(45, 255, 243));
         JFrame frame = new JFrame("Flying Ball v1.1");
         frame.setContentPane(this);
-        add(ball1); add(ball2); add(ball3); add(ball4); add(ball5);
-        add(ball6); add(ball7); add(ball8); add(ball9); add(ball0);
+//        add(ball1); add(ball2); add(ball3); add(ball4); add(ball5);
+//        add(ball6); add(ball7); add(ball8); add(ball9); add(ball0);
         frame.setBounds(200, 200, frameWidth, frameHeight);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
@@ -73,4 +77,19 @@ public class FlyingBall extends JPanel {
         }
     }
 
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        ball1.draw(g);
+        ball2.draw(g);
+        ball3.draw(g);
+        ball4.draw(g);
+        ball5.draw(g);
+        ball6.draw(g);
+        ball7.draw(g);
+        ball8.draw(g);
+        ball9.draw(g);
+        ball0.draw(g);
+
+    }
 }

@@ -6,7 +6,7 @@ import java.awt.*;
 /**
  * Created by dean on 5/11/15.
  */
-public class Ball extends JComponent {
+public class Ball {
 
     private int ballX;
     private int ballY;
@@ -17,17 +17,15 @@ public class Ball extends JComponent {
         this.ballY = ballY;
         this.ballSpeed = ballSpeed;
         this.ballColour = ballColour;
-//        new Thread() {
-//            @Override
-//            public void run() {
-//                move();
-//            }
-//        }.start();
+        new Thread() {
+            @Override
+            public void run() {
+                move();
+            }
+        }.start();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+    public void draw(Graphics g) {
         g.setColor(ballColour);
         g.fillOval(ballX, ballY, 10, 10);
     }
