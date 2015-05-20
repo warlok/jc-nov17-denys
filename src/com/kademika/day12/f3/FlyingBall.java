@@ -24,23 +24,12 @@ public class FlyingBall extends JPanel {
 
     public static void main(String[] args) {
         FlyingBall flball = new FlyingBall();
-//        ballFly(flball);
         while (true) {
             flball.myRepaint(flball);
         }
 
     }
 
-    private static void ballFly(final FlyingBall flyBall) {
-        new Thread() {
-            @Override
-            public void run() {
-                while (true) {
-                    flyBall.myRepaint(flyBall);
-                }
-            }
-        }.start();
-    }
 
     public FlyingBall() {
         ball1 = new Ball(10, 16, new Color(255,0,0));
@@ -55,8 +44,6 @@ public class FlyingBall extends JPanel {
         ball0 = new Ball(175, 7, new Color(45, 255, 243));
         JFrame frame = new JFrame("Flying Ball v1.1");
         frame.setContentPane(this);
-//        add(ball1); add(ball2); add(ball3); add(ball4); add(ball5);
-//        add(ball6); add(ball7); add(ball8); add(ball9); add(ball0);
         frame.setBounds(200, 200, frameWidth, frameHeight);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
