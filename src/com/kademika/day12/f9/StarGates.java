@@ -1,0 +1,109 @@
+package com.kademika.day12.f9;
+
+import javax.swing.*;
+import java.awt.*;
+
+/**
+ * Created by dean on 5/23/15.
+ */
+public class StarGates {
+
+    public static void main(String[] main) {
+
+        final StarShip ship = new StarShip();
+        final Gates gates = new Gates();
+
+        JFrame frame = new JFrame("Star Gates");
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                ship.draw(g);
+                gates.draw(g);
+            }
+        };
+        frame.setContentPane(panel);
+        frame.setBounds(200, 200, 600, 600);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+
+
+            new Thread() {
+                @Override
+                public void run() {
+                    while (true) {
+                        synchronized (gates) {
+                            System.out.println("Expect for the ship");
+                            try {
+                                gates.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        gates.gatesOpen();
+
+                        synchronized (ship) {
+                            ship.notify();
+                        }
+                        synchronized (gates) {
+                            try {
+                                gates.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        gates.gatesClose();
+                    }
+                }
+            }.start();
+
+
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    while (!gates.isOpen && ship.getX() < gates.getX() - 13) {
+                        ship.setX(ship.getX() + 1);
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    if (!gates.isOpen) {
+                        synchronized (gates) {
+                            gates.notify();
+                        }
+                        synchronized (ship) {
+                            try {
+                                ship.wait();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                    ship.shipFly();
+                }
+            }
+        }.start();
+
+        new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    if (ship.getX() == gates.getX()+11) {
+                        synchronized (gates) {
+                            gates.notify();
+                        }
+                    }
+                }
+            }
+        }.start();
+
+        while (true) {
+            panel.repaint();
+        }
+    }
+
+}
