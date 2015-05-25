@@ -1,4 +1,4 @@
-package com.kademika.day12.f10;
+package com.kademika.day12.f18;
 
 import java.util.Random;
 
@@ -9,7 +9,7 @@ public class SkatingDemo {
 
     public static void main(String[] args) {
 
-        final ShcoolSkatingRink rink = new ShcoolSkatingRink();
+        final PerfectSkatingRink rink = new PerfectSkatingRink();
         final Random r = new Random();
 
         for (int i = 0; i < 100; i++) {

@@ -1,4 +1,4 @@
-package com.kademika.day12.f10;
+package com.kademika.day12.f18;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * Created by dean on 5/24/15.
  */
-public class ShcoolSkatingRink implements SkatingRink {
+public class PerfectSkatingRink implements SkatingRink {
 
     List<Skates> skatesStore = new ArrayList<>(
             Arrays.asList(new Skates[]{new Skates(),
