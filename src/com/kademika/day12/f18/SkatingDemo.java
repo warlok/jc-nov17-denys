@@ -1,35 +1,34 @@
 package com.kademika.day12.f18;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by dean on 5/24/15.
  */
-public class SkatingDemo {
+public class SkatingDemo implements Runnable {
+
+    final static PerfectSkatingRink rink = new PerfectSkatingRink();
+    final static Random r = new Random();
+    Skater skater;
+
+    public SkatingDemo(Skater skater) {
+        this.skater = skater;
+    }
 
     public static void main(String[] args) {
 
-        final PerfectSkatingRink rink = new PerfectSkatingRink();
-        final Random r = new Random();
-
+        ExecutorService executor = Executors.newFixedThreadPool(rink.getSkatesStore().size());
+        List<Skater> skatersList = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
+            skatersList.add(new Skater("Skater"+i));
+        }
 
-            final Skater skater = new Skater("Skater"+i);
-
-            new Thread() {
-                @Override
-                public void run() {
-                    Skates skaters = rink.getSkates(skater);
-                    try {
-                        sleep(r.nextInt(2000));
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    rink.returnSkates(skater,skaters);
-                }
-            }.start();
-
-            sleep(1000);
+        for (Skater skater : skatersList) {
+            executor.submit(new SkatingDemo(skater));
         }
 
     }
@@ -42,4 +41,10 @@ public class SkatingDemo {
         }
     }
 
+    @Override
+    public void run() {
+        Skates skaters = rink.getSkates(skater);
+        sleep(r.nextInt(2000));
+        rink.returnSkates(skater,skaters);
+    }
 }

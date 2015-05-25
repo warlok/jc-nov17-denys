@@ -1,8 +1,8 @@
 package com.kademika.day12.f18;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -11,35 +11,36 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class PerfectSkatingRink implements SkatingRink {
 
-    List<Skates> skatesStore = new ArrayList<>(
-            Arrays.asList(new Skates[]{new Skates(),
-                    new Skates(), new Skates()}));
+    Queue<Skates> skatesStore = new LinkedBlockingQueue<>();
 
-    Lock myLock = new ReentrantLock();
+    public PerfectSkatingRink() {
+        for (int i = 0; i < 5; i++) {
+            skatesStore.add(new Skates());
+        }
+    }
 
     @Override
     public Skates getSkates(Skater skater) {
-        myLock.lock();
-        try {
+
             System.out.println("Give skates to" + skater.getName());
             if (!skatesStore.isEmpty()) {
-                Skates result = skatesStore.get(0);
-                skatesStore.remove(0);
+                Skates result = skatesStore.poll();
                 return result;
             } else {
                 synchronized (skatesStore) {
-                    skatesStore.wait();
-                    Skates result = skatesStore.get(0);
-                    skatesStore.remove(0);
+                    try {
+                        skatesStore.wait();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Skates result = skatesStore.poll();
                     return result;
                 }
             }
-        } catch (Exception e) {
-            System.err.println("Fuck");
-        } finally {
-            myLock.unlock();
-        }
-        return null;
+    }
+
+    public Queue<Skates> getSkatesStore() {
+        return skatesStore;
     }
 
     @Override
@@ -50,4 +51,5 @@ public class PerfectSkatingRink implements SkatingRink {
             skatesStore.notify();
         }
     }
+
 }
