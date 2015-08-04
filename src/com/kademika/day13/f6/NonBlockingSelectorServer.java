@@ -28,7 +28,7 @@ public class NonBlockingSelectorServer {
         ssc.configureBlocking(false);
 
         Selector selector = Selector.open();
-        ssc.register(selector, SelectionKey.OP_ACCEPT);
+        SelectionKey sk = ssc.register(selector, SelectionKey.OP_ACCEPT);
 
         while (true) {
             selector.select();
