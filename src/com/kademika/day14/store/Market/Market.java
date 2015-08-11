@@ -5,199 +5,198 @@ import com.kademika.day14.store.Market.Objects.*;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
-import java.lang.reflect.Method;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.*;
 
 public class Market {
-	
-	private Store store = new Store();
-	private ArrayList<Purchase> purchases = new ArrayList<>();
+
+	private ArrayList<Transaction> transactions = new ArrayList<>();
+    private ArrayList<Animal> animals = new ArrayList<>();
+    private ArrayList<Customer> customers = new ArrayList<>();
     public final Connector CONNECTOR = new Connector();
 
 	public Market() {
 
 	}
 
-
-
-    public void addAnimal(String name,Type type) {
-//		store.addAnimal(a);
+    public void addAnimal(Animal animal) {
+        animals.add(animal);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "INSERT INTO `store`.`Goods` (`name`,`type`) VALUES (?,?)");
-            stmt.setString(1,name);
-            stmt.setString(2,type.toString());
+            stmt.setString(1,animal.getName());
+            stmt.setString(2,animal.getType().toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
     }
 
-	public void removeAnimal(String name) {
-//		store.delAnimal(a);
+	public void removeAnimal(Animal animal) {
+        animals.remove(animal);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "DELETE FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,name);
+            stmt.setString(1,animal.getName());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
 	}
 
-    public void addCustomer(String name) {
+    public void addCustomer(Customer cust) {
+        customers.add(cust);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "INSERT INTO `store`.`Customers` (`name`) VALUES (?)");
-            stmt.setString(1,name);
+            stmt.setString(1,cust.getName());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
     }
 
-    public void removeCustomer(String name) {
+    private void closeConnection(Connection connection) {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void removeCustomer(Customer cust) {
+        customers.remove(cust);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "DELETE FROM `store`.`Customers` WHERE `name`=?");
-            stmt.setString(1,name);
+            stmt.setString(1,cust.getName());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
     }
 
-    public void setPrice(String good, double price) {
+    public void setPrice(Animal animal, double price) {
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "UPDATE `store`.`Goods` SET `price`=? WHERE `name`=?");
             stmt.setDouble(1, price);
-            stmt.setString(2, good);
+            stmt.setString(2, animal.getName());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
     }
 
-    public void byToStore(String good, int amount, double price) {
+    public void buyToStore(Animal animal, int amount, double price) {
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "SELECT `amount` FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,good);
+            stmt.setString(1,animal.getName());
             ResultSet result = stmt.executeQuery();
             result.next();
             PreparedStatement pstmt = connection.prepareStatement(
                     "UPDATE `store`.`Goods` SET `amount`=? WHERE `name`=?");
             pstmt.setDouble(1, result.getDouble(1)+amount);
-            pstmt.setString(2, good);
+            pstmt.setString(2, animal.getName());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
     }
 
-    public void takeFromStore(String good, int amount) {
+    public void takeFromStore(Animal animal, int amount) {
+        animal.setAmount(animal.getAmount()-amount);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "SELECT `amount` FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,good);
+            stmt.setString(1,animal.getName());
             ResultSet result = stmt.executeQuery();
             result.next();
             PreparedStatement pstmt = connection.prepareStatement(
                     "UPDATE `store`.`Goods` SET `amount`=? WHERE `name`=?");
             pstmt.setDouble(1, result.getDouble(1)-amount);
-            pstmt.setString(2, good);
+            pstmt.setString(2, animal.getName());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            closeConnection(connection);
         }
     }
 
- //------------------------------------------------------------------------------------------
+    public void takeFromStore(Animal animal) {
+        animal.setAmount(animal.getAmount()-1);
+        Connection connection = CONNECTOR.getConnection();
+        try {
+            PreparedStatement stmt = connection.prepareStatement(
+                    "SELECT `amount` FROM `store`.`Goods` WHERE `name`=?");
+            stmt.setString(1,animal.getName());
+            ResultSet result = stmt.executeQuery();
+            result.next();
+            PreparedStatement pstmt = connection.prepareStatement(
+                    "UPDATE `store`.`Goods` SET `amount`=? WHERE `name`=?");
+            pstmt.setDouble(1, result.getDouble(1)-1);
+            pstmt.setString(2, animal.getName());
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection(connection);
+        }
+    }
 
-	public void addOnStore(Animal a, int n) {
-		store.getOnStore(a, n);
+	public void addOnStore(Animal animal, int amount, double price) {
+        buyToStore(animal, amount,price);
 	}
 
-	public void sell(String day, Customer cust, LinkedList<Animal> goods) {
+	public void sell(String day, Customer cust, HashMap<Animal,Integer> goods) {
 		double price = 0;
-		if (goods != null) {
-		for (Animal a : goods) {
-			store.takeFromStore(a);
-			price += a.getPrice();
+		if (!goods.isEmpty()) {
+		for (Animal animal : goods.keySet()) {
+            int amount = goods.get(animal);
+			takeFromStore(animal,amount);
+			price += animal.getPrice()*amount;
 		}
-		purchases.add(new Purchase(day,cust,goods,price));
+            transactions.add(new Transaction(day,cust,goods,price));
 		cust.spendMoney(price);
 		cust.addPurchase();
 		cust.clearBucket();
 		} else {System.out.println("Bucket is empty");}
 	}
 
-	public void addOnStore(Animal a) {
-		store.getOnStore(a, 1);
+	public void addOnStore(Animal a, double price) {
+        buyToStore(a, 1, price);
 	}
 	
 	public void printPrices() {
-		for (Animal a : store.getAnimals()) {
+		for (Animal a : animals) {
 			System.out.println("Name: " + a.getName() + "\tPrice: " + a.getPrice());
 		}
 	}
 	
 	public void printCatalog() {
 		
-		ArrayList<Animal> anim = (ArrayList<Animal>) store.getAnimals().clone();
+		ArrayList<Animal> anim = (ArrayList<Animal>) animals.clone();
 		Collections.sort(anim);
 		Type category = null;
 		for (Animal a : anim) {
@@ -210,42 +209,42 @@ public class Market {
 			System.out.println("Name: " + a.getName() + "\tPrice: " + a.getPrice());
 		}
 		}
+
+    public boolean checkAmount(Animal a) {
+        if (a.getAmount() >= 3) {
+            return false;
+        }
+        System.out.println("There is only" + a.getAmount() + " items" );
+        return true;
+    }
+
+    public void printStore() {
+        for (Animal a : animals) {
+            System.out.println("Name: " + a.getName() + "\tAmount: " + a.getAmount());
+        }
+    }
 	
-	public void printStore() {
-		store.printStore();
-	}
-	
-	public String getGoodsNames(LinkedList<Animal> a) {
+	public String getGoodsNames(HashMap<Animal,Integer> bucket) {
 		String result = "";
-		for (int i=0, j=1; i < a.size(); i++) {
-			if (i == 0) {
-                result += a.get(i).getName();
-            } else if (a.get(i).equals(a.get(i-1)) && i != a.size()-1) {
-                j++;
-            } else if (!a.get(i).equals(a.get(i-1))){
-                result += "(x" + j +  "), " + a.get(i).getName();
-                j=1;
-            } else {
-                j++;
-                result += "(x" + j +  ")";
-            }
+		for (Animal animal : bucket.keySet()) {
+                result += animal.getName() + "(x" + bucket.get(animal) + "); ";
 		}
 		return result;
 	}
 
 	public ArrayList<Animal> getAnimals() {
-		return store.getAnimals();
+		return animals;
 	}
 	
 	public JScrollPane printTransactions() {
 		int i = 1;
         Object[][] data = new Object[100][5];
-		for (Purchase pur : purchases) {
+		for (Transaction tr : transactions) {
             data[i-1][0] = i;
-            data[i-1][1] = pur.getDate();
-            data[i-1][2] = pur.getCustomer().getName();
-            data[i-1][3] = getGoodsNames(pur.getGoods());
-            data[i-1][4] = pur.getPrice();
+            data[i-1][1] = tr.getDate();
+            data[i-1][2] = tr.getCustomer().getName();
+            data[i-1][3] = getGoodsNames(tr.getGoods());
+            data[i-1][4] = tr.getPrice();
             i++;
 		}
         String[] columsNames = {"Id ", "Date", "Customer name", "Goods", "Price"};
@@ -264,7 +263,7 @@ public class Market {
 
 	public void init() {
 
-        addCustomer("Denys");
+        /*addCustomer("Denys");
         addCustomer("Nina");
         addCustomer("Oleh");
         addCustomer("Vasya");
@@ -319,7 +318,7 @@ public class Market {
 
 		addAnimal("newt", Type.Amphibian);
         setPrice("newt", 10);
-        byToStore("newt", 60, 0);
+        byToStore("newt", 60, 0);*/
 	}
 
 }

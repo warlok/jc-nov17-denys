@@ -18,7 +18,7 @@ public class Connector {
         } catch (PropertyVetoException e) {
             e.printStackTrace();
         }
-        CDPS.setJdbcUrl("jdbc:mysql://arrow.wnet.ua:3306/store");
+        CDPS.setJdbcUrl("jdbc:mysql://arrow.wnet.ua:3306/market");
         CDPS.setUser("dean");
         CDPS.setPassword("Dean_2004");
         CDPS.setMaxStatements(180);

@@ -1,19 +1,38 @@
 package com.kademika.day14.store.Market.Objects;
 
-import java.util.LinkedList;
+import java.util.HashMap;
 
 public class Customer {
 
+    private static int current_id = 0;
+    private int id;
 	private String name;
 	private int amountPurchases;
 	private double spendMoney;
-	private LinkedList<Animal> bucket = new LinkedList<>();
+	private HashMap<Animal,Integer> bucket = new HashMap<>();
 
 	public Customer() {
-
+        current_id++;
+        this.id = current_id;
 	}
 
-	public String getName() {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setAmountPurchases(int amountPurchases) {
+        this.amountPurchases = amountPurchases;
+    }
+
+    public void setSpendMoney(double spendMoney) {
+        this.spendMoney = spendMoney;
+    }
+
+    public String getName() {
 		return name;
 	}
 
@@ -38,33 +57,52 @@ public class Customer {
 	}
 
 	public void addOnBucket(Animal a, int n) {
-		for (int i = 0; i < n; i++) {
-			bucket.add(a);
-		}
+        if (bucket.containsKey(a)) {
+            int exist = bucket.get(a);
+            bucket.put(a, exist+n);
+        } else {
+            bucket.put(a, n);
+        }
 	}
 
 	public void addOnBucket(Animal a) {
-		bucket.add(a);
+		if (bucket.containsKey(a)) {
+            int exist = bucket.get(a);
+            bucket.put(a, exist+1);
+        } else {
+            bucket.put(a, 1);
+        }
 	}
 
 	public void delFromBucket(Animal a, int n) {
-		for (int i = 0; i < n; i++) {
-			if (bucket.contains(a)) {
-				bucket.remove(a);
+
+			if (bucket.containsKey(a)) {
+                int exist = bucket.get(a);
+                if ((exist-n) <= 0) {
+                    bucket.remove(a);
+                } else {
+                    bucket.put(a, exist - n);
+                }
 			}
-		}
 	}
 
 	public void delFromBucket(Animal a) {
-		bucket.remove(a);
+        if (bucket.containsKey(a)) {
+            int exist = bucket.get(a);
+            if ((exist-1) <= 0) {
+                bucket.remove(a);
+            } else {
+                bucket.put(a, exist - 1);
+            }
+        }
 	}
 
-	public LinkedList<Animal> getBucket() {
+	public HashMap<Animal,Integer> getBucket() {
 		return bucket;
 	}
 	
 	public void clearBucket() {
-		bucket = new LinkedList<>();
+		bucket = new HashMap<Animal,Integer>();
 	}
 
 }

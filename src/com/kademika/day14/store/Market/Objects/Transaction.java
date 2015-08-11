@@ -1,16 +1,20 @@
 package com.kademika.day14.store.Market.Objects;
 
-import java.util.LinkedList;
+import java.util.HashMap;
 
-public class Purchase {
+public class Transaction {
 
+    private static int current_id = 0;
+    private int id;
 	private String date;
 	private Customer customer;
-	private LinkedList<Animal> goods;
+	private HashMap<Animal,Integer> goods;
 	private double price;
 
-	public Purchase(String date, Customer customer, LinkedList<Animal> goods, double price) {
-		this.date = date;
+	public Transaction(String date, Customer customer, HashMap<Animal,Integer> goods, double price) {
+        current_id++;
+        this.id = current_id;
+        this.date = date;
 		this.customer = customer;
 		this.goods = goods;
 		this.price = price;
@@ -24,7 +28,7 @@ public class Purchase {
 		return customer;
 	}
 
-	public LinkedList<Animal> getGoods() {
+	public HashMap<Animal,Integer> getGoods() {
 		return goods;
 	}
 
