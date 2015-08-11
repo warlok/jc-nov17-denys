@@ -262,56 +262,76 @@ public class Market {
 	public void init() {
         Connection connection = CONNECTOR.getConnection();
         try {
-            ResultSet result = null;
-            PreparedStatement stmt = connection.prepareStatement(
-                    "SELECT * FROM `market`.`Goods`");
-            result = stmt.executeQuery();
-            while (result.next()) {
-                Animal animal = new Animal(result.getInt("id_good"));
-                animal.setName(result.getString("name"));
-                animal.setPrice(result.getDouble("price"));
-                animal.setAmount(result.getInt("amount"));
-                animal.setType(Type.valueOf(result.getString("type")));
-                animals.put(animal.getId(),animal);
-            }
-
-            stmt = connection.prepareStatement(
-                    "SELECT * FROM `market`.`Customers`");
-            result = stmt.executeQuery();
-            while (result.next()) {
-                Customer cust = new Customer(result.getInt("id_cust"));
-                cust.setName(result.getString("name"));
-                cust.setAmountPurchases(result.getInt("purchases"));
-                cust.setSpendMoney(result.getDouble("spent"));
-                customers.put(cust.getId(), cust);
-            }
-
-            stmt = connection.prepareStatement(
-                    "SELECT * FROM `market`.`Transactions`");
-            result = stmt.executeQuery();
-            while (result.next()) {
-                Transaction transacrion = new Transaction(result.getInt("id"));
-                transacrion.setPrice(result.getDouble("price"));
-                transacrion.setCustomer(customers.get(result.getInt("id_cust")));
-                transacrion.setDate(result.getString("date"));
-
-                HashMap<Animal,Integer> goods = new HashMap<>();
-                int purchaseId = result.getInt("id_purch");
-                PreparedStatement stmtInner = connection.prepareStatement(
-                        "SELECT * FROM `market`.`Purchases` WHERE `id_purch`=? ");
-                stmtInner.setInt(1,purchaseId);
-                ResultSet resultInner = stmt.executeQuery();
-                while (resultInner.next()) {
-                    goods.put(animals.get(resultInner.getInt("id_good")),resultInner.getInt("amount"));
-                }
-                transacrion.setGoods(goods);
-                transactions.add(transacrion);
-            }
+            getGoods(connection);
+            getCustomers(connection);
+            getTransactions(connection);
 
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            closeConnection(connection);
         }
 
 	}
+
+    private void getGoods(Connection connection) throws SQLException {
+        ResultSet result = null;
+        PreparedStatement stmt = connection.prepareStatement(
+                "SELECT * FROM `market`.`Goods`");
+        result = stmt.executeQuery();
+        while (result.next()) {
+            Animal animal = new Animal(result.getInt("id_good"));
+            animal.setName(result.getString("name"));
+            animal.setPrice(result.getDouble("price"));
+            animal.setAmount(result.getInt("amount"));
+            animal.setType(Type.valueOf(result.getString("type")));
+            animals.put(animal.getId(),animal);
+        }
+    }
+
+    private void getCustomers(Connection connection) throws SQLException {
+        PreparedStatement stmt;
+        ResultSet result;
+        stmt = connection.prepareStatement(
+                "SELECT * FROM `market`.`Customers`");
+        result = stmt.executeQuery();
+        while (result.next()) {
+            Customer cust = new Customer(result.getInt("id_cust"));
+            cust.setName(result.getString("name"));
+            cust.setAmountPurchases(result.getInt("purchases"));
+            cust.setSpendMoney(result.getDouble("spent"));
+            customers.put(cust.getId(), cust);
+        }
+    }
+
+    private void getTransactions(Connection connection) throws SQLException {
+        PreparedStatement stmt;
+        ResultSet result;
+        stmt = connection.prepareStatement(
+                "SELECT * FROM `market`.`Transactions`");
+        result = stmt.executeQuery();
+        while (result.next()) {
+            Transaction transacrion = new Transaction(result.getInt("id"));
+            transacrion.setPrice(result.getDouble("price"));
+            transacrion.setCustomer(customers.get(result.getInt("id_cust")));
+            transacrion.setDate(result.getString("date"));
+            HashMap<Animal, Integer> goods = getGoods(
+                    connection, result.getInt("id_purch"));
+            transacrion.setGoods(goods);
+            transactions.add(transacrion);
+        }
+    }
+
+    private HashMap<Animal, Integer> getGoods(Connection connection, int purch_id) throws SQLException {
+        HashMap<Animal,Integer> goods = new HashMap<>();
+        PreparedStatement stmtInner = connection.prepareStatement(
+                "SELECT * FROM `market`.`Purchases` WHERE `id_purch`=? ");
+        stmtInner.setInt(1,purch_id);
+        ResultSet resultInner = stmtInner.executeQuery();
+        while (resultInner.next()) {
+            goods.put(animals.get(resultInner.getInt("id_good")),resultInner.getInt("amount"));
+        }
+        return goods;
+    }
 
 }
