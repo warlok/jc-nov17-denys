@@ -11,8 +11,8 @@ import java.util.*;
 public class Market {
 
 	private ArrayList<Transaction> transactions = new ArrayList<>();
-    private ArrayList<Animal> animals = new ArrayList<>();
-    private ArrayList<Customer> customers = new ArrayList<>();
+    private HashMap<Integer,Animal> animals = new HashMap<>();
+    private HashMap<Integer,Customer> customers = new HashMap<>();
     public final Connector CONNECTOR = new Connector();
 
 	public Market() {
@@ -20,13 +20,14 @@ public class Market {
 	}
 
     public void addAnimal(Animal animal) {
-        animals.add(animal);
+        animals.put(animal.getId(), animal);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "INSERT INTO `store`.`Goods` (`name`,`type`) VALUES (?,?)");
-            stmt.setString(1,animal.getName());
-            stmt.setString(2,animal.getType().toString());
+                    "INSERT INTO `market`.`Goods` (`id_good`,`name`,`type`) VALUES (?,?,?)");
+            stmt.setInt(1, animal.getId());
+            stmt.setString(2,animal.getName());
+            stmt.setString(3,animal.getType().toString());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -36,12 +37,12 @@ public class Market {
     }
 
 	public void removeAnimal(Animal animal) {
-        animals.remove(animal);
+        animals.remove(animal.getId());
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "DELETE FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,animal.getName());
+                    "DELETE FROM `market`.`Goods` WHERE `id_good`=?");
+            stmt.setInt(1, animal.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -51,12 +52,13 @@ public class Market {
 	}
 
     public void addCustomer(Customer cust) {
-        customers.add(cust);
+        customers.put(cust.getId(), cust);
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "INSERT INTO `store`.`Customers` (`name`) VALUES (?)");
-            stmt.setString(1,cust.getName());
+                    "INSERT INTO `market`.`Customers` (`id`,`name`) VALUES (?,?)");
+            stmt.setInt(1,cust.getId());
+            stmt.setString(2,cust.getName());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -74,12 +76,12 @@ public class Market {
     }
 
     public void removeCustomer(Customer cust) {
-        customers.remove(cust);
+        customers.remove(cust.getId());
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "DELETE FROM `store`.`Customers` WHERE `name`=?");
-            stmt.setString(1,cust.getName());
+                    "DELETE FROM `market`.`Customers` WHERE `id_cust`=?");
+            stmt.setInt(1,cust.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,9 +94,9 @@ public class Market {
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "UPDATE `store`.`Goods` SET `price`=? WHERE `name`=?");
+                    "UPDATE `market`.`Goods` SET `price`=? WHERE `id_good`=?");
             stmt.setDouble(1, price);
-            stmt.setString(2, animal.getName());
+            stmt.setInt(2, animal.getId());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -104,17 +106,19 @@ public class Market {
     }
 
     public void buyToStore(Animal animal, int amount, double price) {
+        int newAmount = animal.getAmount()+amount;
+        animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
-            PreparedStatement stmt = connection.prepareStatement(
-                    "SELECT `amount` FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,animal.getName());
-            ResultSet result = stmt.executeQuery();
-            result.next();
+//            PreparedStatement stmt = connection.prepareStatement(
+//                    "SELECT `amount` FROM `market`.`Goods` WHERE `id_good`=?");
+//            stmt.setInt(1,animal.getId());
+//            ResultSet result = stmt.executeQuery();
+//            result.next();
             PreparedStatement pstmt = connection.prepareStatement(
-                    "UPDATE `store`.`Goods` SET `amount`=? WHERE `name`=?");
-            pstmt.setDouble(1, result.getDouble(1)+amount);
-            pstmt.setString(2, animal.getName());
+                    "UPDATE `market`.`Goods` SET `amount`=? WHERE `id_good`=?");
+            pstmt.setDouble(1, newAmount);
+            pstmt.setInt(2, animal.getId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -124,18 +128,19 @@ public class Market {
     }
 
     public void takeFromStore(Animal animal, int amount) {
-        animal.setAmount(animal.getAmount()-amount);
+        int newAmount = animal.getAmount()-amount;
+        animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
-            PreparedStatement stmt = connection.prepareStatement(
-                    "SELECT `amount` FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,animal.getName());
-            ResultSet result = stmt.executeQuery();
-            result.next();
+//            PreparedStatement stmt = connection.prepareStatement(
+//                    "SELECT `amount` FROM `market`.`Goods` WHERE `name`=?");
+//            stmt.setString(1,animal.getName());
+//            ResultSet result = stmt.executeQuery();
+//            result.next();
             PreparedStatement pstmt = connection.prepareStatement(
-                    "UPDATE `store`.`Goods` SET `amount`=? WHERE `name`=?");
-            pstmt.setDouble(1, result.getDouble(1)-amount);
-            pstmt.setString(2, animal.getName());
+                    "UPDATE `market`.`Goods` SET `amount`=? WHERE `id_good`=?");
+            pstmt.setDouble(1, newAmount);
+            pstmt.setInt(2, animal.getId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -145,18 +150,19 @@ public class Market {
     }
 
     public void takeFromStore(Animal animal) {
-        animal.setAmount(animal.getAmount()-1);
+        int newAmount = animal.getAmount()-1;
+        animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
-            PreparedStatement stmt = connection.prepareStatement(
-                    "SELECT `amount` FROM `store`.`Goods` WHERE `name`=?");
-            stmt.setString(1,animal.getName());
-            ResultSet result = stmt.executeQuery();
-            result.next();
+//            PreparedStatement stmt = connection.prepareStatement(
+//                    "SELECT `amount` FROM `market`.`Goods` WHERE `name`=?");
+//            stmt.setString(1,animal.getName());
+//            ResultSet result = stmt.executeQuery();
+//            result.next();
             PreparedStatement pstmt = connection.prepareStatement(
-                    "UPDATE `store`.`Goods` SET `amount`=? WHERE `name`=?");
-            pstmt.setDouble(1, result.getDouble(1)-1);
-            pstmt.setString(2, animal.getName());
+                    "UPDATE `market`.`Goods` SET `amount`=? WHERE `id_good`=?");
+            pstmt.setDouble(1, newAmount);
+            pstmt.setInt(2, animal.getId());
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -164,10 +170,6 @@ public class Market {
             closeConnection(connection);
         }
     }
-
-	public void addOnStore(Animal animal, int amount, double price) {
-        buyToStore(animal, amount,price);
-	}
 
 	public void sell(String day, Customer cust, HashMap<Animal,Integer> goods) {
 		double price = 0;
@@ -183,13 +185,9 @@ public class Market {
 		cust.clearBucket();
 		} else {System.out.println("Bucket is empty");}
 	}
-
-	public void addOnStore(Animal a, double price) {
-        buyToStore(a, 1, price);
-	}
 	
 	public void printPrices() {
-		for (Animal a : animals) {
+		for (Animal a : animals.values()) {
 			System.out.println("Name: " + a.getName() + "\tPrice: " + a.getPrice());
 		}
 	}
@@ -219,7 +217,7 @@ public class Market {
     }
 
     public void printStore() {
-        for (Animal a : animals) {
+        for (Animal a : animals.values()) {
             System.out.println("Name: " + a.getName() + "\tAmount: " + a.getAmount());
         }
     }
@@ -232,7 +230,7 @@ public class Market {
 		return result;
 	}
 
-	public ArrayList<Animal> getAnimals() {
+	public HashMap<Integer,Animal> getAnimals() {
 		return animals;
 	}
 	
@@ -262,63 +260,58 @@ public class Market {
 	}
 
 	public void init() {
+        Connection connection = CONNECTOR.getConnection();
+        try {
+            ResultSet result = null;
+            PreparedStatement stmt = connection.prepareStatement(
+                    "SELECT * FROM `market`.`Goods`");
+            result = stmt.executeQuery();
+            while (result.next()) {
+                Animal animal = new Animal(result.getInt("id_good"));
+                animal.setName(result.getString("name"));
+                animal.setPrice(result.getDouble("price"));
+                animal.setAmount(result.getInt("amount"));
+                animal.setType(Type.valueOf(result.getString("type")));
+                animals.put(animal.getId(),animal);
+            }
 
-        /*addCustomer("Denys");
-        addCustomer("Nina");
-        addCustomer("Oleh");
-        addCustomer("Vasya");
+            stmt = connection.prepareStatement(
+                    "SELECT * FROM `market`.`Customers`");
+            result = stmt.executeQuery();
+            while (result.next()) {
+                Customer cust = new Customer(result.getInt("id_cust"));
+                cust.setName(result.getString("name"));
+                cust.setAmountPurchases(result.getInt("purchases"));
+                cust.setSpendMoney(result.getDouble("spent"));
+                customers.put(cust.getId(), cust);
+            }
 
-		addAnimal("tiger",Type.Mammal);
-        setPrice("tiger",30);
-        byToStore("tiger",10,0);
+            stmt = connection.prepareStatement(
+                    "SELECT * FROM `market`.`Transactions`");
+            result = stmt.executeQuery();
+            while (result.next()) {
+                Transaction transacrion = new Transaction(result.getInt("id"));
+                transacrion.setPrice(result.getDouble("price"));
+                transacrion.setCustomer(customers.get(result.getInt("id_cust")));
+                transacrion.setDate(result.getString("date"));
 
-		addAnimal("rabbit", Type.Mammal);
-        setPrice("rabbit",5);
-        byToStore("rabbit",5,0);
+                HashMap<Animal,Integer> goods = new HashMap<>();
+                int purchaseId = result.getInt("id_purch");
+                PreparedStatement stmtInner = connection.prepareStatement(
+                        "SELECT * FROM `market`.`Purchases` WHERE `id_purch`=? ");
+                stmtInner.setInt(1,purchaseId);
+                ResultSet resultInner = stmt.executeQuery();
+                while (resultInner.next()) {
+                    goods.put(animals.get(resultInner.getInt("id_good")),resultInner.getInt("amount"));
+                }
+                transacrion.setGoods(goods);
+                transactions.add(transacrion);
+            }
 
-		addAnimal("raccoon", Type.Mammal);
-        setPrice("raccoon",2);
-        byToStore("raccoon",3,0);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		addAnimal("penguin", Type.Bird);
-        setPrice("penguin",100);
-        byToStore("penguin",12,0);
-
-		addAnimal("chameleon", Type.Reptile);
-        setPrice("chameleon",1);
-        byToStore("chameleon",40,0);
-
-		addAnimal("iguana", Type.Reptile);
-        setPrice("iguana",3);
-        byToStore("iguana",11,0);
-
-		addAnimal("owl", Type.Bird);
-        setPrice("owl",12);
-        byToStore("owl",2,0);
-
-		addAnimal("parrot", Type.Bird);
-        setPrice("parrot",7);
-        byToStore("parrot",50,0);
-
-		addAnimal("sunfish", Type.Fish);
-        setPrice("sunfish",1000);
-        byToStore("sunfish",6,0);
-
-		addAnimal("boa", Type.Reptile);
-        setPrice("boa",100);
-        byToStore("boa",24,0);
-
-		addAnimal("frog", Type.Amphibian);
-        setPrice("frog",5);
-        byToStore("frog",33,0);
-
-		addAnimal("aligator", Type.Reptile);
-        setPrice("aligator",500);
-        byToStore("aligator",15,0);
-
-		addAnimal("newt", Type.Amphibian);
-        setPrice("newt", 10);
-        byToStore("newt", 60, 0);*/
 	}
 
 }

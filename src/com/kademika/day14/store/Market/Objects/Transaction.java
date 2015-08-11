@@ -20,6 +20,35 @@ public class Transaction {
 		this.price = price;
 	}
 
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public void setGoods(HashMap<Animal, Integer> goods) {
+        this.goods = goods;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public Transaction(int id) {
+        current_id++;
+        this.id = id;
+    }
+
 	public String getDate() {
 		return date;
 	}
