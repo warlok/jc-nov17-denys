@@ -123,7 +123,7 @@ public class MarketUI {
 					System.out.println("\n\n\n\n");
 				}
 				market.sell(sdfDate.format(new Date()), cu, cu.getBucket());
-				market.printStore();
+//				market.printStore();
 				panel2.remove(0);
 				panel2.add(market.printTransactions());
 				frame.setContentPane(panel2);

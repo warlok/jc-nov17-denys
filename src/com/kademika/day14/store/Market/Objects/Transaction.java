@@ -4,7 +4,6 @@ import java.util.HashMap;
 
 public class Transaction {
 
-    private static int current_id = 0;
     private int id;
 	private String date;
 	private Customer customer;
@@ -12,8 +11,6 @@ public class Transaction {
 	private double price;
 
 	public Transaction(String date, Customer customer, HashMap<Animal,Integer> goods, double price) {
-        current_id++;
-        this.id = current_id;
         this.date = date;
 		this.customer = customer;
 		this.goods = goods;
@@ -45,7 +42,6 @@ public class Transaction {
     }
 
     public Transaction(int id) {
-        current_id++;
         this.id = id;
     }
 

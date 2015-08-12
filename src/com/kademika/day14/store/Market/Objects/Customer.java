@@ -17,6 +17,7 @@ public class Customer {
 	}
 
     public Customer(int id) {
+        current_id++;
         this.id = id;
     }
 
@@ -55,6 +56,8 @@ public class Customer {
 	public void addPurchase() {
 		amountPurchases++;
 	}
+
+
 
 	public void spendMoney(double SpendMoney) {
 		this.spendMoney += SpendMoney;

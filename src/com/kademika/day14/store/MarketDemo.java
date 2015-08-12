@@ -8,10 +8,10 @@ public class MarketDemo {
     public static void main(String[] args) {
 
         Market m = new Market();
-//        m.init();
+        m.init();
 //        m.takeFromStore("parrot",5);
 //        m.CONNECTOR.closeConnections();
-//        new MarketUI(m);
+        new MarketUI(m);
 
     }
 

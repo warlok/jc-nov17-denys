@@ -14,6 +14,7 @@ public class Market {
     private HashMap<Integer,Animal> animals = new HashMap<>();
     private HashMap<Integer,Customer> customers = new HashMap<>();
     public final Connector CONNECTOR = new Connector();
+    private int purchase_id;
 
 	public Market() {
 
@@ -56,7 +57,7 @@ public class Market {
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "INSERT INTO `market`.`Customers` (`id`,`name`) VALUES (?,?)");
+                    "INSERT INTO `market`.`Customers` (`id_cust`,`name`) VALUES (?,?)");
             stmt.setInt(1,cust.getId());
             stmt.setString(2,cust.getName());
             stmt.executeUpdate();
@@ -172,18 +173,29 @@ public class Market {
     }
 
 	public void sell(String day, Customer cust, HashMap<Animal,Integer> goods) {
-		double price = 0;
+        Connection connection = CONNECTOR.getConnection();
+        double price = 0;
 		if (!goods.isEmpty()) {
-		for (Animal animal : goods.keySet()) {
-            int amount = goods.get(animal);
-			takeFromStore(animal,amount);
-			price += animal.getPrice()*amount;
-		}
-            transactions.add(new Transaction(day,cust,goods,price));
-		cust.spendMoney(price);
-		cust.addPurchase();
-		cust.clearBucket();
-		} else {System.out.println("Bucket is empty");}
+            try {
+                purchase_id ++;
+            for (Animal animal : goods.keySet()) {
+                int amount = goods.get(animal);
+                updatePurchases(connection,purchase_id,animal.getId(),amount);
+                takeFromStore(animal, amount);
+                price += animal.getPrice() * amount;
+            }
+            transactions.add(new Transaction(day, cust, goods, price));
+                updateTransactions(connection,cust.getId(),purchase_id,price);
+            cust.spendMoney(price);
+            cust.addPurchase();
+                updateCustomer(connection,cust.getId(),cust.getAmountPurchases(),cust.getSpendMoney());
+            cust.clearBucket();
+        } catch (SQLException e) {
+                e.printStackTrace();
+            } finally {
+                closeConnection(connection);
+            }
+        } else {System.out.println("Bucket is empty");}
 	}
 	
 	public void printPrices() {
@@ -265,7 +277,7 @@ public class Market {
             getGoods(connection);
             getCustomers(connection);
             getTransactions(connection);
-
+            purchase_id = maxID(connection,"Purchases","id_purch");
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -332,6 +344,73 @@ public class Market {
             goods.put(animals.get(resultInner.getInt("id_good")),resultInner.getInt("amount"));
         }
         return goods;
+    }
+
+    private int maxID(Connection connection,String table,String field) throws SQLException {
+        PreparedStatement stmt;
+        ResultSet result;
+        stmt = connection.prepareStatement(
+                "SELECT " + field + " FROM `market`.`"  + table + "`  ORDER BY id_purch DESC LIMIT 1");
+        result = stmt.executeQuery();
+        result.next();
+        return result.getInt(1);
+    }
+
+    private void updatePurchases(Connection connection, int id_purch, int id_good, int amount) throws SQLException {
+        PreparedStatement stmt;
+        stmt = connection.prepareStatement(
+                "INSERT INTO `market`.`Purchases` VALUES (?,?,?)");
+        stmt.setInt(1, id_purch);
+        stmt.setInt(2, id_good);
+        stmt.setInt(3, amount);
+        stmt.executeUpdate();
+
+    }
+
+    private void updateTransactions(
+            Connection connection, int id_cust, int id_purch, double price) throws SQLException {
+        PreparedStatement stmt;
+        stmt = connection.prepareStatement(
+                "INSERT INTO `market`.`Transactions` (`id_cust`,`id_purch`,`price`,`date`) " +
+                        "VALUES (?,?,?,NOW())");
+        stmt.setInt(1, id_cust);
+        stmt.setInt(2, id_purch);
+        stmt.setDouble(3, price);
+        stmt.executeUpdate();
+
+    }
+
+    private void updateCustomer(
+            Connection connection,int id_cust, int purchases, double spent) throws SQLException {
+        PreparedStatement stmt;
+        stmt = connection.prepareStatement(
+                "UPDATE `market`.`Customers` SET `purchases`=?, `spent`=?  WHERE `id_cust`=?");
+        stmt.setInt(1, purchases);
+        stmt.setDouble(2, spent);
+        stmt.setInt(3, id_cust);
+        stmt.executeUpdate();
+
+    }
+
+    public Customer customerByName(String name) {
+        Connection connection = CONNECTOR.getConnection();
+        Customer cust = null;
+        try {
+            PreparedStatement stmt;
+            ResultSet result;
+            stmt = connection.prepareStatement(
+                    "SELECT id_cust FROM `market`.`Customers` where name=?");
+            stmt.setString(1,name);
+            result = stmt.executeQuery();
+            if (result.next()) {
+                cust = customers.get(result.getInt(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeConnection(connection);
+        }
+        return cust;
     }
 
 }

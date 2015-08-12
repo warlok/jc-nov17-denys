@@ -13,7 +13,8 @@ import java.util.LinkedList;
 
 public class MarketUI {
 
-    private SimpleDateFormat sdfDate = new SimpleDateFormat("MM.dd.yyyy hh:mm");
+//    private SimpleDateFormat sdfDate = new SimpleDateFormat("MM.dd.yyyy hh:mm");
+    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 	private LinkedList<Customer> cust;
 	private JPanel panel1;
 	private JPanel panel2;
@@ -58,7 +59,7 @@ public class MarketUI {
 		text = new JTextField(10);
 
 		pets = new Animal[market.getAnimals().size()];
-		pets = market.getAnimals().toArray(pets);
+		pets = market.getAnimals().values().toArray(pets);
 		petStrings = new String[pets.length];
 		for (int i=0; i< pets.length; i++) {
 			petStrings[i] = pets[i].getName();
@@ -102,13 +103,16 @@ public class MarketUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
                 Customer c;
-				if (!cust.isEmpty() && cust.getFirst().getName().equals(text.getText())) {
-					c = cust.getFirst();
+                String name = text.getText();
+                Customer temp_cust = market.customerByName(name);
+				if (temp_cust != null) {
+					c = temp_cust;
 				} else {
 					c = new Customer();
 					c.setName(text.getText());
-					cust.addFirst(c);
+                    market.addCustomer(c);
 				}
+                cust.addFirst(c);
 				int counts = Integer.valueOf(amountAnimals.getText());
 				c.addOnBucket(findAnimal(pets, (String) petList.getSelectedItem()), counts);
 			}
@@ -119,9 +123,6 @@ public class MarketUI {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Customer cu = cust.getFirst();
-				for (int i = 0; i < 100; i++) {
-					System.out.println("\n\n\n\n");
-				}
 				market.sell(sdfDate.format(new Date()), cu, cu.getBucket());
 				market.printStore();
 				panel2.remove(0);

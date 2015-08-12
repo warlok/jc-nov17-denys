@@ -15,6 +15,7 @@ public class Animal implements Comparable<Animal>{
 	}
 
     public Animal(int id) {
+        current_id++;
         this.id = id;
     }
 
