@@ -14,7 +14,7 @@ import java.util.LinkedList;
 public class MarketUI {
 
 //    private SimpleDateFormat sdfDate = new SimpleDateFormat("MM.dd.yyyy hh:mm");
-    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss" + ".0");
 	private LinkedList<Customer> cust;
 	private JPanel panel1;
 	private JPanel panel2;
@@ -42,9 +42,14 @@ public class MarketUI {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JMenuBar menuBar = new JMenuBar();
-        JMenu menu = new JMenu("File");
-        JMenuItem menuItem = new JMenuItem("Buy Animals");
-        menuItem.addActionListener(new ActionListener() {
+        JMenu menuMarket = new JMenu("Operations");
+        JMenu menuGood = new JMenu("Manage goods");
+        JMenuItem sellGoods = new JMenuItem("Sell Animals");
+        JMenuItem buyGoods = new JMenuItem("Buy Animals");
+        JMenuItem catalog = new JMenuItem("Print Catalog");
+        JMenuItem addGood = new JMenuItem("Add/Del Good");
+        JMenuItem changePrice = new JMenuItem("Change Price");
+        sellGoods.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				frame.setContentPane(panel1);
@@ -52,8 +57,13 @@ public class MarketUI {
 			}
 		});
 
-		menu.add(menuItem);
-        menuBar.add(menu);
+        menuMarket.add(sellGoods);
+        menuMarket.add(buyGoods);
+        menuMarket.add(catalog);
+        menuGood.add(addGood);
+        menuGood.add(changePrice);
+        menuBar.add(menuMarket);
+        menuBar.add(menuGood);
         frame.setJMenuBar(menuBar);
 		JLabel lable = new JLabel("Customer's Name:");
 		text = new JTextField(10);
