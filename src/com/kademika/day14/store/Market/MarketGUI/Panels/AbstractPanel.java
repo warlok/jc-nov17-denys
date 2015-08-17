@@ -1,18 +1,24 @@
 package com.kademika.day14.store.Market.MarketGUI.Panels;
 
+import com.kademika.day14.store.Market.Market;
 import com.kademika.day14.store.Market.Objects.Animal;
 import com.kademika.day14.store.Market.Objects.Customer;
 
 import javax.swing.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import java.awt.*;
+import java.util.*;
 
 /**
  * Created by dean on 8/16/15.
  */
-public abstract class AbstractPanel extends JPanel {
+public abstract class AbstractPanel extends JPanel implements Observer {
 
+    protected JTextField name;
+    protected JTextField amountAnimals;
+    protected JButton buttonAdd;
+    protected JButton buttonRemove;
+    protected JButton buy;
+    protected JComboBox petList;
 
     protected String getAnimalsInBasket(Customer cust) {
         String result = "";
@@ -48,15 +54,6 @@ public abstract class AbstractPanel extends JPanel {
         return result;
     }
 
-    protected Animal findAnimal(Animal[] array,String name) {
-        for (Animal a : array) {
-            if (a.getName().equals(name)) {
-                return a;
-            }
-        }
-        return null;
-    }
-
     protected boolean checkString(String string) {
         try {
             Double.parseDouble(string);
@@ -66,4 +63,15 @@ public abstract class AbstractPanel extends JPanel {
         return true;
     }
 
+    @Override
+    public void update(Observable o, Object arg) {
+        Market market = (Market) o;
+        remove(petList);
+        petList = new JComboBox(market.getAnimals().values().toArray());
+        petList.setRenderer(new ObjectBoxRenderer());
+        petList.setMaximumRowCount(5);
+        add(petList, new GridBagConstraints(1, 1, 1, 1, 0, 0,
+                GridBagConstraints.LINE_START, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 0, 0), 0, 0));
+    }
 }

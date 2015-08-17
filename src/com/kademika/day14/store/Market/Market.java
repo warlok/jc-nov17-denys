@@ -8,7 +8,7 @@ import javax.swing.table.TableColumn;
 import java.sql.*;
 import java.util.*;
 
-public class Market {
+public class Market extends Observable {
 
 	private ArrayList<Transaction> transactions = new ArrayList<>();
     private HashMap<Integer,Animal> animals = new HashMap<>();
@@ -25,13 +25,16 @@ public class Market {
 
     public void addAnimal(Animal animal) {
         animals.put(animal.getId(), animal);
+        setChanged();
+        notifyObservers();
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
-                    "INSERT INTO `market`.`Goods` (`id_good`,`name`,`type`) VALUES (?,?,?)");
+                    "INSERT INTO `market`.`Goods` (`id_good`,`name`,`type`,`price`) VALUES (?,?,?,?)");
             stmt.setInt(1, animal.getId());
-            stmt.setString(2,animal.getName());
+            stmt.setString(2, animal.getName());
             stmt.setString(3,animal.getType().toString());
+            stmt.setDouble(4, animal.getPrice());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -42,6 +45,8 @@ public class Market {
 
 	public void removeAnimal(Animal animal) {
         animals.remove(animal.getId());
+        setChanged();
+        notifyObservers();
         Connection connection = CONNECTOR.getConnection();
         try {
             PreparedStatement stmt = connection.prepareStatement(
@@ -62,7 +67,7 @@ public class Market {
             PreparedStatement stmt = connection.prepareStatement(
                     "INSERT INTO `market`.`Customers` (`id_cust`,`name`) VALUES (?,?)");
             stmt.setInt(1,cust.getId());
-            stmt.setString(2,cust.getName());
+            stmt.setString(2, cust.getName());
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -115,13 +120,10 @@ public class Market {
         animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
-//            PreparedStatement stmt = connection.prepareStatement(
-//                    "SELECT `amount` FROM `market`.`Goods` WHERE `id_good`=?");
-//            stmt.setInt(1,animal.getId());
-//            ResultSet result = stmt.executeQuery();
-//            result.next();
             String operation = "Bought " + amount + " " + animal.getName() + "(s)";
             moneyFromBudget(operation,price);
+            setChanged();
+            notifyObservers();
                     PreparedStatement pstmt = connection.prepareStatement(
                             "UPDATE `market`.`Goods` SET `amount`=? WHERE `id_good`=?");
             pstmt.setDouble(1, newAmount);
@@ -139,11 +141,6 @@ public class Market {
         animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
-//            PreparedStatement stmt = connection.prepareStatement(
-//                    "SELECT `amount` FROM `market`.`Goods` WHERE `name`=?");
-//            stmt.setString(1,animal.getName());
-//            ResultSet result = stmt.executeQuery();
-//            result.next();
             PreparedStatement pstmt = connection.prepareStatement(
                     "UPDATE `market`.`Goods` SET `amount`=? WHERE `id_good`=?");
             pstmt.setDouble(1, newAmount);
@@ -156,27 +153,6 @@ public class Market {
         }
     }
 
- /*   public void takeFromStore(Animal animal) {
-        int newAmount = animal.getAmount()-1;
-        animal.setAmount(newAmount);
-        Connection connection = CONNECTOR.getConnection();
-        try {
-//            PreparedStatement stmt = connection.prepareStatement(
-//                    "SELECT `amount` FROM `market`.`Goods` WHERE `name`=?");
-//            stmt.setString(1,animal.getName());
-//            ResultSet result = stmt.executeQuery();
-//            result.next();
-            PreparedStatement pstmt = connection.prepareStatement(
-                    "UPDATE `market`.`Goods` SET `amount`=? WHERE `id_good`=?");
-            pstmt.setDouble(1, newAmount);
-            pstmt.setInt(2, animal.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            closeConnection(connection);
-        }
-    }*/
 
 	public void sell(String day, Customer cust, HashMap<Animal,Integer> goods) {
         Connection connection = CONNECTOR.getConnection();
@@ -198,6 +174,8 @@ public class Market {
                 cust.clearBucket();
                 String operation = "Sold animals by purchase #" + purchase_id;
                 moneyToBudget(operation,price);
+                setChanged();
+                notifyObservers();
         } catch (SQLException e) {
                 e.printStackTrace();
             } finally {
@@ -306,7 +284,7 @@ public class Market {
             animal.setPrice(result.getDouble("price"));
             animal.setAmount(result.getInt("amount"));
             animal.setType(Type.valueOf(result.getString("type")));
-            animals.put(animal.getId(),animal);
+            animals.put(animal.getId(), animal);
         }
     }
 
@@ -409,6 +387,7 @@ public class Market {
         result = stmt.executeQuery();
         result.next();
         budget = result.getDouble(1);
+
     }
 
     private void moneyToBudget(String operation, double credit) throws SQLException {
@@ -421,7 +400,7 @@ public class Market {
                             "`operation`,`credit`,`balance`,`date`) " +
                             "VALUES (?,?,?,NOW())");
             stmt.setString(1,operation);
-            stmt.setDouble(2,credit);
+            stmt.setDouble(2, credit);
             stmt.setDouble(3,this.budget);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -441,7 +420,7 @@ public class Market {
                             "`operation`,`debit`,`balance`,`date`) " +
                             "VALUES (?,?,?,NOW())");
             stmt.setString(1,operation);
-            stmt.setDouble(2,debit);
+            stmt.setDouble(2, debit);
             stmt.setDouble(3,this.budget);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -454,6 +433,8 @@ public class Market {
     private void moneyNewBudget(double balance) throws SQLException {
         Connection connection = CONNECTOR.getConnection();
         this.budget = balance;
+        setChanged();
+        notifyObservers();
         String operation = "Correcting balance";
         try {
             PreparedStatement stmt;
@@ -490,16 +471,6 @@ public class Market {
             closeConnection(connection);
         }
         return cust;
-    }
-
-    public String[] generatePetlistString() {
-        pets = new Animal[getAnimals().size()];
-        pets = getAnimals().values().toArray(pets);
-        petStrings = new String[pets.length];
-        for (int i=0; i< pets.length; i++) {
-            petStrings[i] = pets[i].getName();
-        }
-        return petStrings;
     }
 
     public double getBudget() {

@@ -17,10 +17,6 @@ import java.util.*;
  */
 public class BuyPanel extends AbstractPanel {
 
-//    private JTextField text;
-    private Animal[] pets;
-    private String[] petStrings;
-    private JComboBox petList;
     private JTextField amountAnimals;
     private JTextField price;
     private JButton buttonAdd;
@@ -33,15 +29,9 @@ public class BuyPanel extends AbstractPanel {
         setLayout(new GridBagLayout());
 
         JLabel lable = new JLabel("Animals:");
-//        text = new JTextField(10);
-
-//        pets = new Animal[market.getAnimals().size()];
-//        pets = market.getAnimals().values().toArray(pets);
-//        petStrings = new String[pets.length];
-//        for (int i=0; i< pets.length; i++) {
-//            petStrings[i] = pets[i].getName();
-//        }
-        petList = new JComboBox(market.generatePetlistString());
+        ObjectBoxRenderer obr = new ObjectBoxRenderer();
+        petList = new JComboBox(market.getAnimals().values().toArray());
+        petList.setRenderer(obr);
         petList.setMaximumRowCount(5);
 
         JLabel amountLable = new JLabel("Amount:");
@@ -52,18 +42,16 @@ public class BuyPanel extends AbstractPanel {
         buttonAdd = new JButton("Add");
         buttonRemove = new JButton("Remove");
         buy = new JButton("BUY");
-//        JLabel lablePetsList = new JLabel("Choose an Animal:");
         final JLabel lableBasket = new JLabel(animalsInBasket);
-//        final JTextArea lableBasket = new JTextArea(animalsInBasket);
         JScrollPane scrollPane = new JScrollPane(lableBasket);
 
         add(lable, new GridBagConstraints(0, 0, 1, 1, 0, 0,
-                GridBagConstraints.LINE_START, 0, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.LINE_START, 0, new Insets(0, 20, 0, 0), 0, 0));
         add(petList, new GridBagConstraints(1, 0, 1, 1, 0, 0,
                 GridBagConstraints.LINE_START, 0,
                 new Insets(0, 0, 0, 0), 0, 0));
         add(amountLable, new GridBagConstraints(2, 0, 1, 1, 0, 0,
-                GridBagConstraints.LINE_START, 0, new Insets(0, 0, 0, 0), 0, 0));
+                GridBagConstraints.LINE_START, 0, new Insets(0, 5, 0, 0), 0, 0));
         add(amountAnimals, new GridBagConstraints(3, 0, 1, 1, 0, 0,
                 GridBagConstraints.LINE_START, 0,
                 new Insets(0, 0, 0, 0), 0, 0));
@@ -93,7 +81,7 @@ public class BuyPanel extends AbstractPanel {
             public void actionPerformed(ActionEvent e) {
                 if (amountAnimals.getText() != null && !amountAnimals.getText().isEmpty() &&
                         Integer.valueOf(amountAnimals.getText()) > 0 && checkString(price.getText())) {
-                    Animal anim = findAnimal(pets, petList.getSelectedItem().toString());
+                    Animal anim = (Animal) petList.getSelectedItem();
                     Integer amount = Integer.valueOf(amountAnimals.getText());
                     Double buyngPrice = Double.valueOf(price.getText());
                     HashMap<Integer, Double> amountAndPrice = new HashMap<>();
@@ -112,7 +100,7 @@ public class BuyPanel extends AbstractPanel {
             public void actionPerformed(ActionEvent e) {
                 if (amountAnimals.getText() != null && !amountAnimals.getText().isEmpty() &&
                         Integer.valueOf(amountAnimals.getText()) > 0 && checkString(price.getText())) {
-                    Animal anim = findAnimal(pets, petList.getSelectedItem().toString());
+                    Animal anim = (Animal) petList.getSelectedItem();
                     Integer amount = Integer.valueOf(amountAnimals.getText());
 
                     if (bucket.containsKey(anim)) {
@@ -144,7 +132,7 @@ public class BuyPanel extends AbstractPanel {
                         int amount = bucket.get(anim).keySet().iterator().next();
                         double buyngPrice = bucket.get(anim).get(amount);
                         market.buyToStore(anim,amount,buyngPrice*amount);
-                        MarketUI.refreshMainPanel(mainPane, market);
+//                        MarketUI.refreshMainPanel(mainPane, market);
                     }
                     animalsInBasket = "Basket is empty";
                     lableBasket.setText(animalsInBasket);
@@ -156,5 +144,17 @@ public class BuyPanel extends AbstractPanel {
                 }
             }
         });
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Market market = (Market) o;
+        remove(petList);
+        petList = new JComboBox(market.getAnimals().values().toArray());
+        petList.setRenderer(new ObjectBoxRenderer());
+        petList.setMaximumRowCount(5);
+        add(petList, new GridBagConstraints(1, 0, 1, 1, 0, 0,
+                GridBagConstraints.LINE_START, 0,
+                new Insets(0, 0, 0, 0), 0, 0));
     }
 }

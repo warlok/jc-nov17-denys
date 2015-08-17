@@ -40,23 +40,6 @@ public class CatalogPanel extends AbstractPanel {
         TableColumn column = null;
         column = table.getColumnModel().getColumn(0);
         column.setPreferredWidth(3);
-//        column = table.getColumnModel().getColumn(1);
-//        column.setPreferredWidth(25);
-//        column = table.getColumnModel().getColumn(4);
-//        DoubleRenderer renderer = new DoubleRenderer();
-//        column.setCellRenderer(renderer);
-//        column.setPreferredWidth(25);
-//        column.getCellEditor().addCellEditorListener(new CellEditorListener() {
-//            @Override
-//            public void editingStopped(ChangeEvent e) {
-//                e.getSource().
-//            }
-
-//            @Override
-//            public void editingCanceled(ChangeEvent e) {
-//
-//            }
-//        });
         JScrollPane sp = new JScrollPane(table);
         table.setFillsViewportHeight(true);
         add(sp,BorderLayout.CENTER);

@@ -1,10 +1,7 @@
 package com.kademika.day14.store.Market.MarketGUI;
 
 import com.kademika.day14.store.Market.Market;
-import com.kademika.day14.store.Market.MarketGUI.Panels.BuyPanel;
-import com.kademika.day14.store.Market.MarketGUI.Panels.CatalogPanel;
-import com.kademika.day14.store.Market.MarketGUI.Panels.ManagePanel;
-import com.kademika.day14.store.Market.MarketGUI.Panels.SellPanel;
+import com.kademika.day14.store.Market.MarketGUI.Panels.*;
 import com.kademika.day14.store.Market.Objects.Animal;
 import com.kademika.day14.store.Market.Objects.Customer;
 
@@ -17,8 +14,6 @@ import java.util.*;
 
 public class MarketUI {
 
-//    private SimpleDateFormat sdfDate = new SimpleDateFormat("MM.dd.yyyy hh:mm");
-//    private SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss" + ".0");
 	private LinkedList<Customer> cust;
 	private JPanel sellPane;
 	private JPanel mainPane;
@@ -26,15 +21,15 @@ public class MarketUI {
     private JPanel managePane;
     private JPanel buyPane;
 	private JFrame frame;
-    private JLabel balanceLable;
 
 	public MarketUI(final Market market) {
 		SplashScreen splashScreen = SplashScreen.getSplashScreen();
 		cust = new LinkedList<>();
-        mainPane = new JPanel(new BorderLayout());
-        mainPane.add(market.printTransactions(),BorderLayout.CENTER);
-        balanceLable = new JLabel("Balance: " + market.getBudget() + "$");
-        mainPane.add(balanceLable,BorderLayout.SOUTH);
+        mainPane = new MainPanel(market);
+//        mainPane = new JPanel(new BorderLayout());
+//        mainPane.add(market.printTransactions(),BorderLayout.CENTER);
+//        balanceLable = new JLabel("Balance: " + market.getBudget() + "$");
+//        mainPane.add(balanceLable,BorderLayout.SOUTH);
 
 		frame = new JFrame("Petshop");
 		frame.setBounds(350, 50, 500, 800);
@@ -45,7 +40,10 @@ public class MarketUI {
         buyPane = new BuyPanel(market, frame, mainPane);
         managePane = new ManagePanel(market, frame,mainPane);
 
-//        catalogPane = new CatalogPanel(market,frame,mainPane);
+        market.addObserver((Observer) sellPane);
+        market.addObserver((Observer) buyPane);
+        market.addObserver((Observer) managePane);
+        market.addObserver((Observer) mainPane);
 
 		JMenuBar menuBar = new JMenuBar();
         JMenu menuMarket = new JMenu("Operations");
@@ -126,34 +124,10 @@ public class MarketUI {
 		frame.setVisible(true);
 	}
 
-//    private String getAnimalsInBasket(Customer cust) {
-//        String result = "";
-//        if (cust.getBucket().isEmpty()) {
-//            return "Basket is empty";
-//        }
-//        for (Iterator<Animal> iter = cust.getBucket().keySet().iterator();iter.hasNext();) {
-//                Animal animal = iter.next();
-//            if (iter.hasNext()) {
-//                result += animal.getName() + "(x" + cust.getBucket().get(animal) + "),";
-//            } else {
-//                result += animal.getName() + "(x" + cust.getBucket().get(animal) + ");";
-//            }
-//        }
-//        return result;
+//    public static void refreshMainPanel(JPanel panel,Market market) {
+//        panel.removeAll();
+//        panel.add(market.printTransactions(),BorderLayout.CENTER);
+//        panel.add(new JLabel("Balance: " + market.getBudget() + "$"),BorderLayout.SOUTH);
 //    }
-//
-//	private Animal findAnimal(Animal[] array,String name) {
-//		for (Animal a : array) {
-//			if (a.getName().equals(name)) {
-//				return a;
-//			}
-//		}
-//		return null;
-//	}
-    public static void refreshMainPanel(JPanel panel,Market market) {
-        panel.removeAll();
-        panel.add(market.printTransactions(),BorderLayout.CENTER);
-        panel.add(new JLabel("Balance: " + market.getBudget() + "$"),BorderLayout.SOUTH);
-    }
 
 }
