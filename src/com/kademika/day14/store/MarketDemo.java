@@ -1,7 +1,7 @@
 package com.kademika.day14.store;
 
 import com.kademika.day14.store.Market.Market;
-import com.kademika.day14.store.Market.MarketUI;
+import com.kademika.day14.store.Market.MarketGUI.MarketUI;
 
 public class MarketDemo {
 
@@ -9,8 +9,6 @@ public class MarketDemo {
 
         Market m = new Market();
         m.init();
-//        m.takeFromStore("parrot",5);
-//        m.CONNECTOR.closeConnections();
         new MarketUI(m);
 
     }

@@ -16,6 +16,8 @@ public class Market {
     public final Connector CONNECTOR = new Connector();
     private double budget;
     private int purchase_id;
+    private Animal[] pets;
+    private String[] petStrings;
 
 	public Market() {
 
@@ -94,6 +96,7 @@ public class Market {
 
     public void setPrice(Animal animal, double price) {
         Connection connection = CONNECTOR.getConnection();
+        animal.setPrice(price);
         try {
             PreparedStatement stmt = connection.prepareStatement(
                     "UPDATE `market`.`Goods` SET `price`=? WHERE `id_good`=?");
@@ -489,4 +492,17 @@ public class Market {
         return cust;
     }
 
+    public String[] generatePetlistString() {
+        pets = new Animal[getAnimals().size()];
+        pets = getAnimals().values().toArray(pets);
+        petStrings = new String[pets.length];
+        for (int i=0; i< pets.length; i++) {
+            petStrings[i] = pets[i].getName();
+        }
+        return petStrings;
+    }
+
+    public double getBudget() {
+        return budget;
+    }
 }
