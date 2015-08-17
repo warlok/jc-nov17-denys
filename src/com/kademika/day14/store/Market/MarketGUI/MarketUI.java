@@ -56,6 +56,14 @@ public class MarketUI {
         final JMenuItem catalog = new JMenuItem("Print Catalog");
         JMenuItem addGood = new JMenuItem("Add/Del Good");
 
+        budgetOperations.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setContentPane(new TransacrionPanel(market));
+                frame.pack();
+            }
+        });
+
         addGood.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
