@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.LinkedList;
 import java.util.Observable;
 import java.util.Observer;
@@ -136,8 +137,20 @@ public class SellPanel extends AbstractPanel {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 if (!name.getText().isEmpty() && !"Basket is empty".equals(animalsInBasket)) {
                     Customer cu = cust.getFirst();
+                    List<Animal> notEnough = market.haveEnoughGoods(cu.getBucket());
+                    if (!notEnough.isEmpty()) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("There is only ");
+                        for (Animal animal : notEnough) {
+                            sb.append(animal.getName() + "(x" + animal.getAmount() + ")" + " ");
+                        }
+                        sb.append("animals;");
+                        JOptionPane.showMessageDialog(frame, sb.toString());
+                        return;
+                    }
                     market.sell(sdfDate.format(new Date()), cu, cu.getBucket());
                     market.printStore();
 //                    MarketUI.refreshMainPanel(mainPane,market);

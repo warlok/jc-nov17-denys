@@ -131,7 +131,12 @@ public class BuyPanel extends AbstractPanel {
                         anim = iter.next();
                         int amount = bucket.get(anim).keySet().iterator().next();
                         double buyngPrice = bucket.get(anim).get(amount);
-                        market.buyToStore(anim,amount,buyngPrice*amount);
+                        if (market.haveEnoughMoney(buyngPrice*amount)) {
+                            market.buyToStore(anim, amount, buyngPrice * amount);
+                        } else {
+                            JOptionPane.showMessageDialog(frame, "You don't have enough money");
+                            return;
+                        }
 //                        MarketUI.refreshMainPanel(mainPane, market);
                     }
                     animalsInBasket = "Basket is empty";

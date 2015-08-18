@@ -5,6 +5,9 @@ import com.kademika.day14.store.Market.Objects.*;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.sql.*;
 import java.util.*;
 
@@ -16,12 +19,53 @@ public class Market extends Observable {
     public final Connector CONNECTOR = new Connector();
     private double budget;
     private int purchase_id;
-    private Animal[] pets;
-    private String[] petStrings;
 
 	public Market() {
+//        startServer();
+    }
 
-	}
+    private void startServer() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try (
+                        ServerSocket ss = new ServerSocket(9191);
+                ) {
+                    while (true) {
+                        final Socket sock = ss.accept();
+                        processSocket(sock);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void processSocket(final Socket sock) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try (InputStream is = sock.getInputStream();
+                     BufferedInputStream bis = new BufferedInputStream(is);
+                     OutputStream os = sock.getOutputStream();
+                     BufferedOutputStream bos = new BufferedOutputStream(os);
+                     ObjectOutputStream oos = new ObjectOutputStream(bos)
+                ) {
+                    while (true) {
+                        if ((char) bis.read() == 'a') {
+                            break;
+                        }
+                    }
+                    for (Customer customer : customers.values()) {
+                        customer.writeExternal(oos);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
 
     public void addAnimal(Animal animal) {
         animals.put(animal.getId(), animal);
@@ -117,6 +161,10 @@ public class Market extends Observable {
 
     public void buyToStore(Animal animal, int amount, double price) {
         int newAmount = animal.getAmount()+amount;
+        if (!haveEnoughMoney(price*amount)) {
+            System.err.println("You don't have enough money");
+            return;
+        }
         animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
@@ -136,8 +184,9 @@ public class Market extends Observable {
         }
     }
 
-    public void takeFromStore(Animal animal, int amount) {
+    public boolean takeFromStore(Animal animal, int amount) {
         int newAmount = animal.getAmount()-amount;
+        if (newAmount > 0) {
         animal.setAmount(newAmount);
         Connection connection = CONNECTOR.getConnection();
         try {
@@ -146,18 +195,21 @@ public class Market extends Observable {
             pstmt.setDouble(1, newAmount);
             pstmt.setInt(2, animal.getId());
             pstmt.executeUpdate();
+            return true;
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             closeConnection(connection);
         }
+        }
+        return false;
     }
 
 
 	public void sell(String day, Customer cust, HashMap<Animal,Integer> goods) {
         Connection connection = CONNECTOR.getConnection();
         double price = 0;
-		if (!goods.isEmpty()) {
+		if (!goods.isEmpty() && haveEnoughGoods(goods).isEmpty()) {
             try {
                 purchase_id ++;
             for (Animal animal : goods.keySet()) {
@@ -471,6 +523,21 @@ public class Market extends Observable {
             closeConnection(connection);
         }
         return cust;
+    }
+
+    public boolean haveEnoughMoney(Double price) {
+        return (budget - price) > 1000 ? true : false;
+    }
+
+    public List<Animal> haveEnoughGoods(HashMap<Animal,Integer> goods) {
+        List<Animal> animals = new ArrayList<>();
+        for (Animal animal : goods.keySet()) {
+            int amount = goods.get(animal);
+            if ((animal.getAmount() - amount) <= 0) {
+                animals.add(animal);
+            }
+        }
+        return animals;
     }
 
     public double getBudget() {

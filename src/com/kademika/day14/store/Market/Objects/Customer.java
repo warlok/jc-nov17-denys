@@ -1,8 +1,12 @@
 package com.kademika.day14.store.Market.Objects;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.HashMap;
 
-public class Customer {
+public class Customer implements Externalizable {
 
     private static int current_id = 0;
     private int id;
@@ -112,4 +116,25 @@ public class Customer {
 		bucket = new HashMap<Animal,Integer>();
 	}
 
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeInt(id);
+        out.writeInt(name.length());
+        out.writeChars(name);
+        out.writeInt(amountPurchases);
+        out.writeDouble(spendMoney);
+    }
+
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        id = in.readInt();
+        int length = in.readInt();
+        StringBuilder sb = new StringBuilder();
+        for (int i=0; i<length; i++) {
+            sb.append(in.readChar());
+        }
+        name = sb.toString();
+        amountPurchases = in.readInt();
+        spendMoney = in.readDouble();
+    }
 }
